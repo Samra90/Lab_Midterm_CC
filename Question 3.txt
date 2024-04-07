@@ -1,0 +1,78 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <random>
+#include <algorithm>
+char generateRandomUppercase() {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis('A', 'Z');
+    return static_cast<char>(dis(gen));
+}
+char generateRandomDigit() {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, 9);
+    return static_cast<char>(dis(gen) + '0');
+}
+
+// Function to generate a random special character
+char generateRandomSpecialChar() {
+    std::string specialChars = "!@#$%^&*()_-+=<>,.?/:;{}[]|";
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, specialChars.size() - 1);
+    return specialChars[dis(gen)];
+}
+std::string generatePassword(const std::string& first_name, const std::string& last_name, const std::vector<int>& reg_numbers) {
+    std::string password;
+    // At least one uppercase alphabet
+    password += generateRandomUppercase();
+    // At least 4 numbers, including two registration numbers
+    for (int i = 0; i < 2; ++i) {
+        password += std::to_string(reg_numbers[i]);
+    }
+    for (int i = 0; i < 2; ++i) {
+        password += generateRandomDigit();
+    }
+
+    // At least 2 special characters
+    password += generateRandomSpecialChar();
+    password += generateRandomSpecialChar();
+    // Must contain initials of first and last name
+    password += std::toupper(first_name[0]);
+    password += std::toupper(last_name[0]);
+    // Must contain all odd letters of the first name
+    for (int i = 0; i < first_name.size(); ++i) {
+        if (i % 2 == 0) {
+            password += first_name[i];
+        }
+    }
+
+    // Must contain all even letters of the last name
+    for (int i = 0; i < last_name.size(); ++i) {
+        if (i % 2 != 0) {
+            password += last_name[i];
+        }
+    }
+
+    // Shuffle the password
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(password.begin(), password.end(), g);
+    // Truncate if necessary
+    if (password.size() > 16) {
+        password = password.substr(0, 16);
+    }
+    return password;
+}
+int main() {
+    std::string first_name = "John";
+    std::string last_name = "Doe";
+    std::vector<int> reg_numbers = {1234, 5678}; // Example registration numbers
+
+    std::string password = generatePassword(first_name, last_name, reg_numbers);
+    std::cout << "Generated Password: " << password << std::endl;
+
+    return 0;
+}
